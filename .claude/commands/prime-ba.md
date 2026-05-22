@@ -124,7 +124,7 @@ Be concrete — name the feature and what's missing. If nothing obvious is missi
 
 Top 3-5 entries from `.agents/memory/decisions.md`. One line each — decision + why.
 
-If empty, note "memory/decisions.md puste — decyzje nie były jeszcze zapisywane".
+If empty, note "memory/decisions.md is empty — no decisions have been recorded yet".
 
 ### Recommended Next Steps
 
@@ -134,7 +134,7 @@ Given the gaps identified, recommend concrete next actions in priority order. Ex
 - `/create-PRD` — no PRD yet, product direction unclear
 - Refresh PRD — raw sources present but PRD seems outdated
 
-Limit to 3 recommendations max. If nothing obvious, say "backlog wygląda spójnie — jesteś gotów do pracy nad user stories".
+Limit to 3 recommendations max. If nothing obvious, say "the backlog looks coherent — you're ready to work on user stories".
 
 ---
 

@@ -2,7 +2,7 @@
 
 Flow for changing an issue's status. Two-phase because Jira requires a `transition_id`, not a status name, and the set of available transitions depends on the issue's current status and the project's workflow.
 
-Invoked when the primary skill sees subcommand `transition` or detects transition intent in natural language ("przenieś PROJ-123 do In Progress", "close PROJ-45").
+Invoked when the primary skill sees subcommand `transition` or detects transition intent in natural language ("move PROJ-123 to In Progress", "close PROJ-45").
 
 ---
 
@@ -59,7 +59,7 @@ If the chosen transition has `fields` with `required: true` entries (common for 
 
 - For each required field, ask the user interactively:
   ```
-  Transition "Done" wymaga pola "resolution". Wybierz:
+  Transition "Done" requires field "resolution". Select:
   - Fixed
   - Won't Do
   - Duplicate
@@ -70,16 +70,16 @@ If the chosen transition has `fields` with `required: true` entries (common for 
 
 ### Step 5 — Dry-run confirm
 
-Render a diff-style prompt in Polish:
+Render a diff-style confirmation prompt:
 
 ```
-Zmieniam $0 ("<summary>")
-  z:  "<CURRENT_STATUS>"
-  na: "<TARGET_STATUS>"
+Changing $0 ("<summary>")
+  from: "<CURRENT_STATUS>"
+  to:   "<TARGET_STATUS>"
 <if required fields:>
-  pola: resolution=Fixed
+  fields: resolution=Fixed
 
-Kontynuować? [y/n]
+Continue? [y/n]
 ```
 
 - On `n` → abort.
@@ -118,8 +118,8 @@ On error (e.g. transition became invalid between steps 1 and 6 because someone e
 
 - **Chained transitions** (user wants `To Do` → `Done`, but workflow forces `To Do` → `In Progress` → `Done`): step 1 only shows transitions available from the CURRENT status. If the user's target is not reachable in one step, say so:
   ```
-  Z 'To Do' nie ma bezpośredniego przejścia do 'Done'. Dostępne: Start Progress → In Progress. Chcesz wykonać pierwszy krok? Wtedy uruchom skill ponownie z kolejnym. [y/n]
+  There is no direct transition from 'To Do' to 'Done'. Available: Start Progress → In Progress. Do you want to perform the first step? Then run the skill again for the next one. [y/n]
   ```
-- **Unknown issue key** (404 at step 1): stop with "Klucz $0 nie istnieje w tej instancji". Don't retry.
+- **Unknown issue key** (404 at step 1): stop with "Key $0 does not exist in this instance". Don't retry.
 - **No transitions available** (weird workflow state): show `jira_get_transitions` raw response and stop.
 - **Target status name exists but as multiple transitions** (rare — some workflows have two paths to the same status): list them with their transition names, ask user to disambiguate by transition name.

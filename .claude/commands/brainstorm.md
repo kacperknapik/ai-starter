@@ -56,7 +56,7 @@ Once you understand what to build, present the design incrementally:
 - **Edge cases and error handling** — what can go wrong
 - **External integrations** — if the feature calls an external API/service, cite the relevant file in `.agents/reference/` (if one exists); otherwise flag that a reference doc should be added before implementation
 
-Ask after each section: "Wygląda dobrze? Kontynuuję?"
+Ask after each section: "Does this look good? Shall I continue?"
 
 Be ready to revise. Only advance when the user confirms.
 
@@ -138,7 +138,7 @@ Fix inline. No need to re-review after fixing.
 
 After self-review, ask the user to confirm:
 
-> "Spec zapisany do `<path>`. Przejrzyj go i daj znać jeśli chcesz coś zmienić zanim przejdziemy do planowania implementacji."
+> "Spec saved to `<path>`. Review it and let me know if you'd like any changes before we move on to implementation planning."
 
 Wait for the user's response. If they request changes, make them and re-run Step 6. Only proceed when the user approves.
 

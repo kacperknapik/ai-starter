@@ -145,11 +145,11 @@ Core principles: **KISS**, **YAGNI**, **SOLID** (SRP, OCP, DIP), **Fail Fast**.
 
 | Context | Language |
 |---------|----------|
-| Claude ↔ developer communication | **Polish** — always |
+| Claude ↔ developer communication | **English** — always |
 | Code, comments, docstrings, commit messages, technical docs | **English** — always |
-| App UI, user-facing messages, error messages in the app | **As defined in PRD** (default: Polish unless specified otherwise) |
+| App UI, user-facing messages, error messages in the app | **As defined in PRD** (default: English unless specified otherwise) |
 
-> Claude always responds in Polish. Developer writes in Polish. Code stays in English.
+> Claude always responds in English. Code stays in English.
 > App language follows the product requirement — check PRD in `docs/PRD.md` or ask if unclear.
 
 ---

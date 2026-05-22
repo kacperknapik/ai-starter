@@ -2,7 +2,7 @@
 name: jira
 description: Create, edit, search, comment, link, and transition Jira Cloud Epics, Tasks, and Bugs via mcp-atlassian. Use when the user mentions Jira, a PROJ-XXX issue key, or asks to create/update/search/comment/transition tasks, epics, or bugs. Supports bulk creation under a parent Epic.
 when_to_use: |
-  Triggered by phrases in Polish or English like "stwórz task", "create epic", "edytuj bug", "zaktualizuj", "dodaj komentarz", "add comment", "pokaż moje bugi", "show my bugs", "zmień status", "transition", "zablokuj przez", "blocked by", "powiąż z", "link to", or any reference to a Jira issue key (regex [A-Z]+-\d+). Also via explicit /jira invocation with optional subcommand as first argument: /jira bulk, /jira search, /jira transition, /jira comment, /jira link, /jira create, /jira update. Handles Epic / Task / Bug only — no sub-tasks.
+  Triggered by phrases like "create task", "create epic", "edit bug", "update", "add comment", "show my bugs", "change status", "transition", "blocked by", "link to", or any reference to a Jira issue key (regex [A-Z]+-\d+). Also via explicit /jira invocation with optional subcommand as first argument: /jira bulk, /jira search, /jira transition, /jira comment, /jira link, /jira create, /jira update. Handles Epic / Task / Bug only — no sub-tasks.
 argument-hint: "[subcommand] [args...]"
 allowed-tools: mcp__atlassian__jira_get_issue mcp__atlassian__jira_search mcp__atlassian__jira_create_issue mcp__atlassian__jira_update_issue mcp__atlassian__jira_add_comment mcp__atlassian__jira_transition_issue mcp__atlassian__jira_get_transitions mcp__atlassian__jira_create_issue_link mcp__atlassian__jira_get_link_types mcp__atlassian__jira_get_all_projects mcp__atlassian__jira_batch_create_issues
 ---
@@ -45,9 +45,9 @@ echo "JIRA_DEFAULT_COMPONENTS: ${JIRA_DEFAULT_COMPONENTS:-UNSET}"
 echo "JIRA_DEFAULT_LABELS: ${JIRA_DEFAULT_LABELS:-UNSET}"
 ```
 
-**If any of `JIRA_URL`, `JIRA_USERNAME`, `JIRA_API_TOKEN` is MISSING:** hard-stop. Tell the user in Polish:
+**If any of `JIRA_URL`, `JIRA_USERNAME`, `JIRA_API_TOKEN` is MISSING:** hard-stop. Tell the user:
 
-> Brakuje zmiennej środowiskowej `<NAME>`. Uzupełnij ją w `.mcp.json` (dla `JIRA_*` MCP-side) lub `.claude/settings.local.json` (dla `JIRA_DEFAULT_*` skill-side) i zrestartuj Claude Code. Szczegóły: [.agents/reference/jira-mcp-atlassian.md](../../agents/reference/jira-mcp-atlassian.md) sekcja "Setup".
+> Environment variable `<NAME>` is missing. Set it in `.mcp.json` (for `JIRA_*` MCP-side) or `.claude/settings.local.json` (for `JIRA_DEFAULT_*` skill-side) and restart Claude Code. Details: [.agents/reference/jira-mcp-atlassian.md](../../agents/reference/jira-mcp-atlassian.md) section "Setup".
 
 `JIRA_DEFAULT_*` UNSET is NOT a blocker — it just means the skill will ask when it needs those values.
 
@@ -89,7 +89,7 @@ Inspect `$0` (first word of `$ARGUMENTS`). Route to the matching flow below:
    Build a valid-components set; drop unknowns from the plan with a note.
 6. **Dry-run table**:
    ```markdown
-   Tworzę <type> w projekcie <project_key>:
+   Creating <type> in project <project_key>:
 
    | Field       | Value                         |
    |-------------|-------------------------------|
@@ -104,7 +104,7 @@ Inspect `$0` (first word of `$ARGUMENTS`). Route to the matching flow below:
    Description:
    <rendered markdown>
 
-   Tworzę? [y/n/edit]
+   Create? [y/n/edit]
    ```
 7. On `y`:
    ```
@@ -121,7 +121,7 @@ Inspect `$0` (first word of `$ARGUMENTS`). Route to the matching flow below:
    - On 400 about a required custom field → show error, ask user for value, retry once with the field added. Offer to capture the pattern to `.agents/memory/domain/jira.md`.
 8. **Report**:
    ```
-   Utworzone: <NEW-KEY> — $JIRA_URL/browse/<NEW-KEY>
+   Created: <NEW-KEY> — $JIRA_URL/browse/<NEW-KEY>
    ```
 
 ---
@@ -135,14 +135,14 @@ Inspect `$0` (first word of `$ARGUMENTS`). Route to the matching flow below:
 2. **Apply user's change** to the fetched state — produce a diff.
 3. **Dry-run table** showing before/after:
    ```markdown
-   Zmiany dla $1:
+   Changes for $1:
 
    | Field     | Before      | After       |
    |-----------|-------------|-------------|
    | Priority  | Medium      | High        |
    | Labels    | ...         | ..., urgent |
 
-   Kontynuować? [y/n]
+   Continue? [y/n]
    ```
 4. On `y`:
    ```
@@ -155,7 +155,7 @@ Inspect `$0` (first word of `$ARGUMENTS`). Route to the matching flow below:
    ```
    - **Labels are replaced wholesale.** If user said "add label X", merge with existing (from step 1) before passing.
    - **Components are replaced wholesale** — same merging rule.
-5. **Report**: `Zaktualizowane: $1`.
+5. **Report**: `Updated: $1`.
 
 **Status changes are NOT done via update.** Delegate to Flow G.
 
@@ -174,10 +174,10 @@ Summary of invariants carried through: validate parent is Epic → `validate_onl
 1. **Resolve input**:
    - If `$1` matches a cookbook id (keyword like `open-bugs`, `my-recent`, `high-prio-bugs` etc. from [`references/jql-cookbook.md`](references/jql-cookbook.md)) → use the mapped JQL.
    - If `$ARGUMENTS` looks like raw JQL (contains `=`, `~`, `AND`, `OR`) → use as-is.
-   - Otherwise (natural language like `"moje bugi"`, `"open tasks"`) → translate to JQL:
+   - Otherwise (natural language like `"my bugs"`, `"open tasks"`) → translate to JQL:
      ```
-     Interpretuję jako: project = $JIRA_DEFAULT_PROJECT AND type = Bug AND assignee = currentUser() AND resolution = Unresolved
-     Użyć? [y/edit]
+     Interpreting as: project = $JIRA_DEFAULT_PROJECT AND type = Bug AND assignee = currentUser() AND resolution = Unresolved
+     Use? [y/edit]
      ```
      Wait for confirmation — search is safe but misinterpreted JQL wastes the turn.
 2. **Ensure project clause**: if the JQL has no `project =` and `$JIRA_DEFAULT_PROJECT` is set, prepend `project = $JIRA_DEFAULT_PROJECT AND (...)`.
@@ -195,7 +195,7 @@ Summary of invariants carried through: validate parent is Epic → `validate_onl
    |-----------|------|--------------------|-------------|-----------|----------|
    | PROJ-123  | Bug  | Login returns 500  | In Progress | j.smith   | High     |
    ```
-5. If `total > 50` → note the total count and ask: `Pokaż następne 50 czy zawęzić query? [next/narrow/skip]`.
+5. If `total > 50` → note the total count and ask: `Show next 50 or narrow query? [next/narrow/skip]`.
 
 ---
 
@@ -204,17 +204,17 @@ Summary of invariants carried through: validate parent is Epic → `validate_onl
 1. **Gather**: issue key (`$1` or from prompt), comment body (rest of prompt). Both required.
 2. **Dry-run**:
    ```
-   Dodaję komentarz do <KEY>:
+   Adding comment to <KEY>:
 
    <rendered markdown>
 
-   Dodać? [y/n]
+   Add? [y/n]
    ```
 3. On `y`:
    ```
    jira_add_comment(issue_key="<KEY>", comment="<markdown>")
    ```
-4. **Report**: `Dodany komentarz do <KEY>`.
+4. **Report**: `Comment added to <KEY>`.
 
 Comments are public in Jira — the dry-run is important even for short text.
 
@@ -235,9 +235,9 @@ Two-phase:
    - Ambiguous → ask.
 3. **Dry-run**:
    ```
-   Tworzę link: <outward-KEY> <outward-phrase> <inward-KEY>
+   Creating link: <outward-KEY> <outward-phrase> <inward-KEY>
 
-   Kontynuować? [y/n]
+   Continue? [y/n]
    ```
 4. On `y`:
    ```
@@ -248,7 +248,7 @@ Two-phase:
    )
    ```
    (Exact parameter names TBD at first use — verify against MCP tool schema.)
-5. **Report**: `Utworzony link: ...`.
+5. **Report**: `Created link: ...`.
 
 ---
 
@@ -286,6 +286,6 @@ Full matrix: [`references/field-matrix.md`](references/field-matrix.md).
 
 ## Language
 
-User-facing prompts, confirmations, and reports: **Polish**. Skill internals (this file, references): **English**.
+User-facing prompts, confirmations, and reports: **English**.
 
-Example confirm prompt: `"Tworzę? [y/n/edit]"` — not `"Create? [y/n/edit]"`.
+Example confirm prompt: `"Create? [y/n/edit]"`.
