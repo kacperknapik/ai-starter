@@ -13,12 +13,7 @@
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(git pull:*)",
       "Bash(git fetch:*)",
-      "Bash(git stash:*)",
-      "Bash(git tag:*)",
       "Bash(git describe:*)",
       "Bash(git ls-remote:*)",
       "Bash(git rev-parse:*)",
@@ -26,9 +21,6 @@
       "Bash(git remote get-url:*)",
       "Bash(git symbolic-ref:*)",
       "Bash(git check-ignore *)",
-      "WebFetch(domain:*)",
-      "mcp__atlassian__*",
-      "Bash(git reset *)"
     ],
     "deny": [
       "Bash(git push --force*)",
